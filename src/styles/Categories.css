@@ -1,0 +1,128 @@
+
+.categories-section {
+  padding: 100px 8%;
+  background: #fff;
+}
+
+.section-heading {
+  text-align: center;
+  margin-bottom: 55px;
+}
+
+.section-heading > span {
+  color: #a17abd;
+  letter-spacing: 3px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.section-heading h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 45px;
+  color: #38234e;
+  margin: 14px 0;
+}
+
+.section-heading h2 em {
+  color: #9665c0;
+}
+
+.section-heading p {
+  color: #8c7b99;
+  font-size: 14px;
+}
+
+.categories-grid {
+  max-width: 1250px;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
+}
+
+.category-card {
+  height: 340px;
+  border-radius: 18px;
+  position: relative;
+  overflow: hidden;
+  display: block;
+  background: #eee3f6;
+}
+
+.category-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.7s ease;
+}
+
+.category-card:hover img {
+  transform: scale(1.09);
+}
+
+.category-overlay {
+  position: absolute;
+  inset: 0;
+  padding: 25px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  background: linear-gradient(
+    to top,
+    rgba(37, 19, 51, 0.8),
+    transparent 65%
+  );
+  color: white;
+}
+
+.category-overlay h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 27px;
+  margin-bottom: 7px;
+}
+
+.category-overlay p {
+  font-size: 12px;
+  color: #f0e5f7;
+}
+
+.category-arrow {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: white;
+  color: #70469b;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: 0.3s;
+}
+
+.category-card:hover .category-arrow {
+  background: #d9c2f2;
+  transform: rotate(45deg);
+}
+
+@media (max-width: 850px) {
+  .categories-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 550px) {
+  .categories-section {
+    padding: 70px 5%;
+  }
+
+  .categories-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .category-card {
+    height: 300px;
+  }
+
+  .section-heading h2 {
+    font-size: 35px;
+  }
+}
