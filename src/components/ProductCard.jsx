@@ -3,10 +3,54 @@ import { Heart, ShoppingBag, Star } from "lucide-react";
 import { useState } from "react";
 
 function ProductCard({ product }) {
-  const [isWishlisted, setIsWishlisted] = useState(false);
+  const [isWishlisted, setIsWishlisted] = useState(() => {
+    const saved = JSON.parse(
+      localStorage.getItem("lavera-wishlist") || "[]"
+    );
+
+    return saved.some((item) => item.id === product.id);
+  });
+
   const [added, setAdded] = useState(false);
 
+  const handleWishlist = () => {
+    const saved = JSON.parse(
+      localStorage.getItem("lavera-wishlist") || "[]"
+    );
+
+    let updated;
+
+    if (isWishlisted) {
+      updated = saved.filter((item) => item.id !== product.id);
+    } else {
+      updated = [...saved, product];
+    }
+
+    localStorage.setItem("lavera-wishlist", JSON.stringify(updated));
+    setIsWishlisted(!isWishlisted);
+  };
+
   const handleAddToCart = () => {
+    const cart = JSON.parse(
+      localStorage.getItem("lavera-cart") || "[]"
+    );
+
+    const existing = cart.find((item) => item.id === product.id);
+
+    let updated;
+
+    if (existing) {
+      updated = cart.map((item) =>
+        item.id === product.id
+          ? { ...item, quantity: item.quantity + 1 }
+          : item
+      );
+    } else {
+      updated = [...cart, { ...product, quantity: 1 }];
+    }
+
+    localStorage.setItem("lavera-cart", JSON.stringify(updated));
+
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
   };
@@ -20,10 +64,13 @@ function ProductCard({ product }) {
 
         <button
           className={`wishlist-button ${isWishlisted ? "wishlisted" : ""}`}
-          onClick={() => setIsWishlisted(!isWishlisted)}
+          onClick={handleWishlist}
           aria-label="Toggle wishlist"
         >
-          <Heart size={19} fill={isWishlisted ? "currentColor" : "none"} />
+          <Heart
+            size={19}
+            fill={isWishlisted ? "currentColor" : "none"}
+          />
         </button>
 
         <button className="quick-add" onClick={handleAddToCart}>
@@ -44,9 +91,7 @@ function ProductCard({ product }) {
 
         <div className="product-price">
           ₹{product.price}
-          {product.oldPrice && (
-            <del>₹{product.oldPrice}</del>
-          )}
+          {product.oldPrice && <del>₹{product.oldPrice}</del>}
         </div>
       </div>
     </article>
