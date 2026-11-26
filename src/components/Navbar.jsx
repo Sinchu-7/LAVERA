@@ -25,7 +25,9 @@ function Navbar() {
       </Link>
 
       <nav className={menuOpen ? "nav-links active" : "nav-links"}>
-        <Link to="/" onClick={() => setMenuOpen(false)}>Home</Link>
+        <Link to="/" onClick={() => setMenuOpen(false)}>
+          Home
+        </Link>
 
         <a href="/#shop" onClick={() => setMenuOpen(false)}>
           Shop
@@ -58,10 +60,10 @@ function Navbar() {
           <ShoppingBag />
         </Link>
 
-        <button className="login-btn">
+        <Link to="/login" className="login-btn">
           <UserRound size={17} />
           Login
-        </button>
+        </Link>
 
       </div>
 

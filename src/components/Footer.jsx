@@ -1,11 +1,9 @@
 
 import {
-  Instagram,
-  Facebook,
-  Youtube,
   ArrowUp,
   Heart,
 } from "lucide-react";
+
 import "../styles/Footer.css";
 
 function Footer() {
@@ -18,6 +16,7 @@ function Footer() {
 
   return (
     <footer className="footer" id="about">
+
       <div className="footer-main">
 
         <div className="footer-brand">
@@ -30,32 +29,34 @@ function Footer() {
           </p>
 
           <div className="footer-socials">
-            <a href="https://instagram.com" target="_blank" rel="noreferrer" aria-label="Instagram">
-              <Instagram />
+            <a href="https://instagram.com" target="_blank" rel="noreferrer">
+              Instagram
             </a>
-            <a href="https://facebook.com" target="_blank" rel="noreferrer" aria-label="Facebook">
-              <Facebook />
+
+            <a href="https://facebook.com" target="_blank" rel="noreferrer">
+              Facebook
             </a>
-            <a href="https://youtube.com" target="_blank" rel="noreferrer" aria-label="YouTube">
-              <Youtube />
+
+            <a href="https://youtube.com" target="_blank" rel="noreferrer">
+              YouTube
             </a>
           </div>
         </div>
 
         <div className="footer-column">
           <h3>Explore</h3>
-          <a href="#home">Home</a>
-          <a href="#shop">Shop</a>
-          <a href="#collections">Best Sellers</a>
-          <a href="#about">Our Story</a>
+          <a href="/#home">Home</a>
+          <a href="/#shop">Shop</a>
+          <a href="/#collections">Best Sellers</a>
+          <a href="/#about">Our Story</a>
         </div>
 
         <div className="footer-column">
           <h3>Categories</h3>
-          <a href="#skincare">Skincare</a>
-          <a href="#makeup">Makeup</a>
-          <a href="#lipcare">Lip Care</a>
-          <a href="#bodycare">Body Care</a>
+          <a href="/#skincare">Skincare</a>
+          <a href="/#makeup">Makeup</a>
+          <a href="/#lipcare">Lip Care</a>
+          <a href="/#bodycare">Body Care</a>
         </div>
 
         <div className="footer-column">
@@ -65,18 +66,22 @@ function Footer() {
           <a href="#returns">Returns & Refunds</a>
           <a href="#faq">FAQs</a>
         </div>
+
       </div>
 
       <div className="footer-bottom">
+
         <p>
-          © {new Date().getFullYear()} LAVÉRA. Made with{" "}
-          <Heart size={13} fill="currentColor" /> and love.
+          © {new Date().getFullYear()} LAVÉRA.
+          Made with <Heart size={13} fill="currentColor" /> and love.
         </p>
 
         <button onClick={scrollToTop} aria-label="Back to top">
           Back to Top <ArrowUp size={15} />
         </button>
+
       </div>
+
     </footer>
   );
 }
