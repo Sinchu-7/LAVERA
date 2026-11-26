@@ -1,0 +1,265 @@
+
+.shop-page {
+  min-height: 80vh;
+  padding: 75px 8%;
+  background: #faf7ff;
+}
+
+.shop-heading {
+  text-align: center;
+  margin-bottom: 45px;
+}
+
+.shop-heading > span {
+  color: #a17abd;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 3px;
+}
+
+.shop-heading h1 {
+  color: #38234e;
+  font-family: "Playfair Display", serif;
+  font-size: clamp(34px, 5vw, 48px);
+  margin: 15px 0;
+}
+
+.shop-heading h1 em {
+  color: #9665c0;
+}
+
+.shop-heading p {
+  color: #8c7b99;
+  font-size: 14px;
+}
+
+.shop-toolbar {
+  max-width: 1250px;
+  margin: 0 auto 25px;
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.shop-search,
+.shop-sort {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 17px;
+  background: white;
+  border: 1px solid #e7dcf0;
+  border-radius: 30px;
+  color: #906eaa;
+}
+
+.shop-search {
+  flex: 1;
+}
+
+.shop-search input {
+  width: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #503b63;
+  font-size: 14px;
+}
+
+.shop-search input::placeholder {
+  color: #ad9db9;
+}
+
+.clear-search {
+  display: grid;
+  place-items: center;
+  border: none;
+  background: transparent;
+  color: #8c6ba7;
+  cursor: pointer;
+}
+
+.shop-sort select {
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #604080;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.shop-categories {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 30px 0;
+}
+
+.shop-categories button {
+  padding: 11px 23px;
+  border: 1px solid #d9c5e9;
+  border-radius: 25px;
+  background: white;
+  color: #70469b;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.shop-categories button.active,
+.shop-categories button:hover {
+  background: #744aa2;
+  color: white;
+  border-color: #744aa2;
+  box-shadow: 0 5px 15px #744aa225;
+}
+
+.shop-results-header {
+  max-width: 1250px;
+  margin: 0 auto 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.shop-count {
+  color: #907c9f;
+  font-size: 13px;
+  margin: 0;
+}
+
+.shop-count strong {
+  color: #604080;
+}
+
+.reset-filters {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: transparent;
+  border: none;
+  color: #9065b0;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.shop-products {
+  max-width: 1250px;
+  align-items: stretch;
+}
+
+.shop-products > div {
+  min-width: 0;
+}
+
+.shop-empty {
+  text-align: center;
+  padding: 75px 20px;
+  color: #8c7b99;
+}
+
+.shop-empty svg {
+  color: #9665c0;
+  margin-bottom: 15px;
+}
+
+.shop-empty h2 {
+  color: #49345d;
+  font-family: "Playfair Display", serif;
+  margin-bottom: 10px;
+}
+
+.shop-empty button {
+  margin-top: 20px;
+  padding: 12px 25px;
+  background: #744aa2;
+  border: none;
+  border-radius: 25px;
+  color: white;
+  cursor: pointer;
+}
+
+.shop-page .product-card {
+  height: 100%;
+}
+
+.shop-page .product-image {
+  height: 270px;
+}
+
+.shop-page .quick-add {
+  opacity: 1;
+  transform: translateY(0);
+  cursor: pointer;
+}
+
+.shop-page .quick-add.added {
+  background: #744aa2;
+  color: white;
+}
+
+.shop-page .wishlist-button {
+  cursor: pointer;
+}
+
+.shop-page .product-info h3 {
+  min-height: 42px;
+}
+
+@media (max-width: 1000px) {
+  .shop-page {
+    padding: 65px 5%;
+  }
+}
+
+@media (max-width: 650px) {
+  .shop-page {
+    padding: 50px 5%;
+  }
+
+  .shop-heading h1 {
+    font-size: 34px;
+  }
+
+  .shop-toolbar {
+    flex-direction: column;
+  }
+
+  .shop-sort {
+    justify-content: center;
+  }
+
+  .shop-results-header {
+    gap: 10px;
+  }
+
+  .shop-page .products-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  .shop-page .product-image {
+    height: 190px;
+  }
+
+  .shop-page .product-info {
+    padding: 14px 10px;
+  }
+
+  .shop-page .product-info h3 {
+    font-size: 15px;
+    min-height: 38px;
+  }
+
+  .shop-page .product-rating small {
+    font-size: 10px;
+  }
+
+  .shop-page .quick-add {
+    left: 7px;
+    right: 7px;
+    width: calc(100% - 14px);
+    padding: 9px 5px;
+    font-size: 11px;
+  }
+}

@@ -1,86 +1,112 @@
 
-import { Heart, ShoppingBag, Star } from "lucide-react";
 import { useState } from "react";
+import { Heart, ShoppingBag, Star, Check } from "lucide-react";
+import { motion } from "framer-motion";
+
+function readStorage(key) {
+  try {
+    return JSON.parse(localStorage.getItem(key) || "[]");
+  } catch {
+    return [];
+  }
+}
 
 function ProductCard({ product }) {
-  const [isWishlisted, setIsWishlisted] = useState(() => {
-    const saved = JSON.parse(
-      localStorage.getItem("lavera-wishlist") || "[]"
-    );
-
-    return saved.some((item) => item.id === product.id);
-  });
+  const [isWishlisted, setIsWishlisted] = useState(() =>
+    readStorage("lavera-wishlist").some(
+      (item) => item.id === product.id
+    )
+  );
 
   const [added, setAdded] = useState(false);
 
   const handleWishlist = () => {
-    const saved = JSON.parse(
-      localStorage.getItem("lavera-wishlist") || "[]"
+    const saved = readStorage("lavera-wishlist");
+
+    const updated = isWishlisted
+      ? saved.filter((item) => item.id !== product.id)
+      : [...saved, product];
+
+    localStorage.setItem(
+      "lavera-wishlist",
+      JSON.stringify(updated)
     );
 
-    let updated;
-
-    if (isWishlisted) {
-      updated = saved.filter((item) => item.id !== product.id);
-    } else {
-      updated = [...saved, product];
-    }
-
-    localStorage.setItem("lavera-wishlist", JSON.stringify(updated));
     setIsWishlisted(!isWishlisted);
   };
 
   const handleAddToCart = () => {
-    const cart = JSON.parse(
-      localStorage.getItem("lavera-cart") || "[]"
+    const cart = readStorage("lavera-cart");
+
+    const existing = cart.find(
+      (item) => item.id === product.id
     );
 
-    const existing = cart.find((item) => item.id === product.id);
+    const updated = existing
+      ? cart.map((item) =>
+          item.id === product.id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        )
+      : [...cart, { ...product, quantity: 1 }];
 
-    let updated;
-
-    if (existing) {
-      updated = cart.map((item) =>
-        item.id === product.id
-          ? { ...item, quantity: item.quantity + 1 }
-          : item
-      );
-    } else {
-      updated = [...cart, { ...product, quantity: 1 }];
-    }
-
-    localStorage.setItem("lavera-cart", JSON.stringify(updated));
+    localStorage.setItem(
+      "lavera-cart",
+      JSON.stringify(updated)
+    );
 
     setAdded(true);
-    setTimeout(() => setAdded(false), 1500);
+    setTimeout(() => setAdded(false), 1600);
   };
 
   return (
-    <article className="product-card">
+    <motion.article
+      className="product-card"
+      whileHover={{ y: -7 }}
+      transition={{ duration: 0.25 }}
+    >
       <div className="product-image">
         <img src={product.image} alt={product.name} />
 
-        <span className="product-badge">{product.badge}</span>
+        {product.badge && (
+          <span className="product-badge">
+            {product.badge}
+          </span>
+        )}
 
-        <button
-          className={`wishlist-button ${isWishlisted ? "wishlisted" : ""}`}
+        <motion.button
+          type="button"
+          className={`wishlist-button ${
+            isWishlisted ? "wishlisted" : ""
+          }`}
           onClick={handleWishlist}
-          aria-label="Toggle wishlist"
+          whileTap={{ scale: 0.85 }}
+          aria-label={
+            isWishlisted ? "Remove from wishlist" : "Add to wishlist"
+          }
         >
           <Heart
             size={19}
             fill={isWishlisted ? "currentColor" : "none"}
           />
-        </button>
+        </motion.button>
 
-        <button className="quick-add" onClick={handleAddToCart}>
-          <ShoppingBag size={17} />
-          {added ? "Added!" : "Add to Cart"}
-        </button>
+        <motion.button
+          type="button"
+          className={`quick-add ${added ? "added" : ""}`}
+          onClick={handleAddToCart}
+          whileTap={{ scale: 0.96 }}
+        >
+          {added ? <Check size={17} /> : <ShoppingBag size={17} />}
+          {added ? "Added to Bag!" : "Add to Cart"}
+        </motion.button>
       </div>
 
       <div className="product-info">
-        <span className="product-category">{product.category}</span>
+        <span className="product-category">
+          {product.category}
+        </span>
+
         <h3>{product.name}</h3>
 
         <div className="product-rating">
@@ -91,10 +117,12 @@ function ProductCard({ product }) {
 
         <div className="product-price">
           ₹{product.price}
-          {product.oldPrice && <del>₹{product.oldPrice}</del>}
+          {product.oldPrice && (
+            <del>₹{product.oldPrice}</del>
+          )}
         </div>
       </div>
-    </article>
+    </motion.article>
   );
 }
 
