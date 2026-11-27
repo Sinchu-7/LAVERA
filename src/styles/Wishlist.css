@@ -1,0 +1,251 @@
+.wishlist-drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(30, 15, 45, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 2500;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.wishlist-drawer {
+  width: 100%;
+  max-width: 440px;
+  height: 100%;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -10px 0 35px rgba(0, 0, 0, 0.15);
+  position: relative;
+}
+
+.wishlist-header {
+  padding: 24px;
+  border-bottom: 1px solid #f2e9f8;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.wishlist-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.wishlist-title h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  color: #38234e;
+}
+
+.close-wishlist {
+  background: transparent;
+  border: none;
+  color: #70469b;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-wishlist:hover {
+  background: #faf4ff;
+}
+
+.wishlist-toast {
+  background: #f3ebfa;
+  color: #70469b;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-bottom: 1px solid #ebdcf5;
+}
+
+.wishlist-items-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.wishlist-item {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f4ecf9;
+}
+
+.wishlist-item img {
+  width: 72px;
+  height: 72px;
+  border-radius: 12px;
+  object-fit: cover;
+  background: #f7effd;
+  flex-shrink: 0;
+}
+
+.wishlist-item-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.wishlist-item-category {
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: #9d77b8;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.wishlist-item-info h4 {
+  font-size: 14px;
+  color: #38234e;
+  margin: 2px 0 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wishlist-item-price {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.wishlist-item-price strong {
+  color: #70469b;
+  font-size: 15px;
+}
+
+.wishlist-item-price del {
+  color: #b7a9c2;
+  font-size: 12px;
+}
+
+.wishlist-item-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-end;
+}
+
+.move-cart-btn {
+  background: #744aa2;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.move-cart-btn:hover {
+  background: #50316f;
+}
+
+.delete-wish-btn {
+  background: transparent;
+  border: none;
+  color: #a491b2;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.delete-wish-btn:hover {
+  color: #b91c1c;
+}
+
+.empty-wishlist {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 24px;
+  text-align: center;
+}
+
+.empty-wishlist h4 {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  color: #38234e;
+  margin: 16px 0 6px;
+}
+
+.empty-wishlist p {
+  color: #8c7b99;
+  font-size: 14px;
+  max-width: 280px;
+  margin-bottom: 24px;
+}
+
+.wishlist-shop-btn {
+  background: #744aa2;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 25px;
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.wishlist-footer {
+  padding: 20px 24px;
+  border-top: 1px solid #f2e9f8;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.add-all-btn {
+  width: 100%;
+  background: #744aa2;
+  color: white;
+  border: none;
+  padding: 13px;
+  border-radius: 25px;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.add-all-btn:hover {
+  background: #523171;
+}
+
+.clear-all-btn {
+  background: transparent;
+  border: none;
+  color: #8c7b99;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 6px;
+  text-decoration: underline;
+}
+
+.clear-all-btn:hover {
+  color: #b91c1c;
+}

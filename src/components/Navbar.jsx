@@ -11,10 +11,12 @@ import {
   Shield,
 } from "lucide-react";
 
+import WishlistDrawer from "./WishlistDrawer";
 import "../styles/Navbar.css";
 
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [wishlistOpen, setWishlistOpen] = useState(false);
   const [cartCount, setCartCount] = useState(0);
   const [wishlistCount, setWishlistCount] = useState(0);
   const [currentUser, setCurrentUser] = useState(null);
@@ -121,10 +123,14 @@ function Navbar() {
           )}
         </div>
 
-        <Link to="/shop" className="icon-btn wishlist-icon-link" aria-label="Wishlist">
+        <button
+          className="icon-btn wishlist-icon-link"
+          aria-label="Wishlist"
+          onClick={() => setWishlistOpen(true)}
+        >
           <Heart size={20} />
           {wishlistCount > 0 && <span className="nav-badge">{wishlistCount}</span>}
-        </Link>
+        </button>
 
         <Link to="/cart" className="icon-btn cart-icon-link" aria-label="Shopping cart">
           <ShoppingBag size={20} />
@@ -166,6 +172,12 @@ function Navbar() {
           aria-hidden="true"
         />
       )}
+
+      <WishlistDrawer
+        isOpen={wishlistOpen}
+        onClose={() => setWishlistOpen(false)}
+        onUpdateCounts={syncCounts}
+      />
     </header>
   );
 }
