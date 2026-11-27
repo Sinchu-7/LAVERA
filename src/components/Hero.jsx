@@ -1,60 +1,81 @@
-
 import { motion } from "framer-motion";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles, Star } from "lucide-react";
+import { Link } from "react-router-dom";
 import "../styles/Hero.css";
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.18,
+      delayChildren: 0.1,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 24 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] },
+  },
+};
 
 function Hero() {
   return (
     <section className="hero" id="home">
-
       <div className="hero-butterfly butterfly-one">🦋</div>
       <div className="hero-butterfly butterfly-two">🦋</div>
       <div className="hero-butterfly butterfly-three">🦋</div>
+      <div className="hero-sparkle sparkle-one">✦</div>
+      <div className="hero-sparkle sparkle-two">✧</div>
 
       <div className="hero-content">
         <motion.div
           className="hero-text"
-          initial={{ opacity: 0, x: -50 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 1 }}
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
         >
-          <span className="hero-label">
-            <Sparkles size={16} />
+          <motion.span className="hero-label" variants={itemVariants}>
+            <Sparkles size={16} className="sparkle-icon-pulse" />
             YOUR BEAUTY, YOUR MAGIC
-          </span>
+          </motion.span>
 
-          <h1>
+          <motion.h1 variants={itemVariants}>
             Bloom Into
             <br />
             Your <span>Beauty.</span>
-          </h1>
+          </motion.h1>
 
-          <p>
-            Discover the beauty of self-care with our
-            luxurious skincare and beauty essentials.
-            Let your natural glow take flight.
-          </p>
+          <motion.p variants={itemVariants}>
+            Discover the beauty of self-care with our luxurious skincare and
+            beauty essentials. Let your natural glow take flight with pure
+            botanical formulas designed for your skin.
+          </motion.p>
 
-          <div className="hero-buttons">
-            <a href="#shop" className="shop-button">
+          <motion.div className="hero-buttons" variants={itemVariants}>
+            <Link to="/shop" className="shop-button">
               Shop Now <ArrowRight size={18} />
-            </a>
+            </Link>
 
             <a href="#collections" className="explore-button">
               Explore Collection
             </a>
-          </div>
+          </motion.div>
 
-          <div className="hero-note">
+          <motion.div className="hero-note" variants={itemVariants}>
             <span>✦</span> A little luxury, a lot of glow.
-          </div>
+          </motion.div>
         </motion.div>
 
         <motion.div
           className="hero-image"
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.2 }}
+          initial={{ opacity: 0, scale: 0.92, y: 30 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
         >
           <div className="hero-image-frame">
             <img
@@ -63,13 +84,24 @@ function Hero() {
             />
           </div>
 
-          <div className="floating-card">
+          <motion.div
+            className="floating-card"
+            animate={{ y: [0, -9, 0] }}
+            transition={{
+              repeat: Infinity,
+              duration: 4.5,
+              ease: "easeInOut",
+            }}
+          >
             <span>✿</span>
             <div>
               <strong>Glow Naturally</strong>
-              <small>Beauty begins with care</small>
+              <small>
+                <Star size={11} fill="#eab308" color="#eab308" style={{ display: 'inline', marginRight: 3 }} />
+                Rated 4.9 by 2,000+ happy skin lovers
+              </small>
             </div>
-          </div>
+          </motion.div>
         </motion.div>
       </div>
 
