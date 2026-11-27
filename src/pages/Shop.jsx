@@ -1,10 +1,12 @@
 
 import { useMemo, useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import {
   Search,
   ShoppingBag,
   SlidersHorizontal,
   X,
+  Tag,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -16,12 +18,20 @@ const categories = ["All", "Skincare", "Makeup", "Body Care"];
 const API = "http://localhost:5000/api/products";
 
 function Shop() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState(() => searchParams.get("search") || "");
   const [category, setCategory] = useState("All");
   const [sort, setSort] = useState("default");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    const querySearch = searchParams.get("search");
+    if (querySearch !== null && querySearch !== search) {
+      setSearch(querySearch);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -65,13 +75,18 @@ function Shop() {
   }, []);
 
   const filteredProducts = useMemo(() => {
+    const term = search.trim().toLowerCase();
+
     let result = products.filter((product) => {
       const name = (product.name || "").toLowerCase();
       const productCategory = (product.category || "").toLowerCase();
+      const description = (product.description || "").toLowerCase();
 
       const matchesSearch =
-        name.includes(search.toLowerCase()) ||
-        productCategory.includes(search.toLowerCase());
+        !term ||
+        name.includes(term) ||
+        productCategory.includes(term) ||
+        description.includes(term);
 
       const matchesCategory =
         category === "All" || product.category === category;
@@ -161,6 +176,11 @@ function Shop() {
       <div className="shop-results-header">
         <p className="shop-count">
           Showing <strong>{filteredProducts.length}</strong> products
+          {search.trim() && (
+            <span className="search-active-pill">
+              matching "<em>{search.trim()}</em>"
+            </span>
+          )}
         </p>
 
         {(search || category !== "All" || sort !== "default") && (

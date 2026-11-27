@@ -126,6 +126,24 @@
   color: #907c9f;
   font-size: 13px;
   margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.search-active-pill {
+  background: #f1e4fb;
+  color: #70469b;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  border: 1px solid #ebd9f9;
+}
+
+.search-active-pill em {
+  font-style: normal;
+  font-weight: 600;
 }
 
 .shop-count strong {
