@@ -23,7 +23,7 @@ function Shop() {
   const [search, setSearch] = useState(() => searchParams.get("search") || "");
   const [category, setCategory] = useState(() => searchParams.get("category") || "All");
   const [onlyInStock, setOnlyInStock] = useState(false);
-  const [sort, setSort] = useState("default");
+  const [sort, setSort] = useState(() => searchParams.get("sort") || "default");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -35,6 +35,10 @@ function Shop() {
     const queryCategory = searchParams.get("category");
     if (queryCategory && queryCategory !== category) {
       setCategory(queryCategory);
+    }
+    const querySort = searchParams.get("sort");
+    if (querySort && querySort !== sort) {
+      setSort(querySort);
     }
   }, [searchParams]);
 
@@ -119,7 +123,19 @@ function Shop() {
     } else if (sort === "high") {
       result.sort((a, b) => b.price - a.price);
     } else if (sort === "rating") {
-      result.sort((a, b) => b.rating - a.rating);
+      result.sort((a, b) => (b.rating || 0) - (a.rating || 0));
+    } else if (sort === "featured") {
+      result.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
+    } else if (sort === "newest") {
+      result.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+    } else if (sort === "name-asc") {
+      result.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+    } else if (sort === "discount") {
+      result.sort((a, b) => {
+        const discA = (a.originalPrice || 0) - a.price;
+        const discB = (b.originalPrice || 0) - b.price;
+        return discB - discA;
+      });
     }
 
     return result;
@@ -171,13 +187,26 @@ function Shop() {
           <SlidersHorizontal size={18} />
           <select
             value={sort}
-            onChange={(e) => setSort(e.target.value)}
+            onChange={(e) => {
+              const val = e.target.value;
+              setSort(val);
+              setSearchParams((prev) => {
+                const next = new URLSearchParams(prev);
+                if (val === "default") next.delete("sort");
+                else next.set("sort", val);
+                return next;
+              });
+            }}
             aria-label="Sort products"
           >
             <option value="default">Default sorting</option>
+            <option value="featured">Featured & Bestsellers</option>
             <option value="low">Price: Low to High</option>
             <option value="high">Price: High to Low</option>
             <option value="rating">Highest Rated</option>
+            <option value="discount">Biggest Savings</option>
+            <option value="newest">Newest Additions</option>
+            <option value="name-asc">Alphabetical (A - Z)</option>
           </select>
         </div>
       </div>
