@@ -1,21 +1,22 @@
-
 const Product = require("../models/Product");
 
-// Get all products
+// Get all products with standardized response
 const getProducts = async (req, res) => {
   try {
     const products = await Product.find().sort({ createdAt: -1 });
     res.status(200).json({
       success: true,
       count: products.length,
+      data: products,
       products,
+      message: "Products fetched successfully",
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// Get one product
+// Get single product by ID
 const getProductById = async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
@@ -27,12 +28,76 @@ const getProductById = async (req, res) => {
       });
     }
 
-    res.status(200).json({ success: true, product });
+    res.status(200).json({
+      success: true,
+      data: product,
+      product,
+      message: "Product retrieved successfully",
+    });
   } catch (error) {
     res.status(400).json({
       success: false,
       message: "Invalid product ID",
+      error: error.message,
     });
+  }
+};
+
+// Get featured products
+const getFeaturedProducts = async (req, res) => {
+  try {
+    const featured = await Product.find({ featured: true }).limit(8).sort({ rating: -1 });
+    res.status(200).json({
+      success: true,
+      count: featured.length,
+      data: featured,
+      products: featured,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Get related products (same category)
+const getRelatedProducts = async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+      return res.status(404).json({ success: false, message: "Product not found" });
+    }
+
+    const related = await Product.find({
+      category: product.category,
+      _id: { $ne: product._id },
+    }).limit(4);
+
+    res.status(200).json({
+      success: true,
+      count: related.length,
+      data: related,
+      products: related,
+    });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+// Get unique categories with product counts
+const getCategories = async (req, res) => {
+  try {
+    const categories = await Product.aggregate([
+      { $group: { _id: "$category", count: { $sum: 1 } } },
+      { $project: { name: "$_id", count: 1, _id: 0 } },
+      { $sort: { name: 1 } },
+    ]);
+
+    res.status(200).json({
+      success: true,
+      count: categories.length,
+      categories,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -43,6 +108,7 @@ const createProduct = async (req, res) => {
     res.status(201).json({
       success: true,
       message: "Product created successfully",
+      data: product,
       product,
     });
   } catch (error) {
@@ -69,6 +135,7 @@ const updateProduct = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Product updated successfully",
+      data: product,
       product,
     });
   } catch (error) {
@@ -91,6 +158,7 @@ const deleteProduct = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Product deleted successfully",
+      deletedId: req.params.id,
     });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });
@@ -100,6 +168,9 @@ const deleteProduct = async (req, res) => {
 module.exports = {
   getProducts,
   getProductById,
+  getFeaturedProducts,
+  getRelatedProducts,
+  getCategories,
   createProduct,
   updateProduct,
   deleteProduct,
