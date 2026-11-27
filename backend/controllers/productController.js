@@ -1,12 +1,36 @@
 const Product = require("../models/Product");
 
-// Get all products with standardized response
+// Get all products with optional pagination support
 const getProducts = async (req, res) => {
   try {
-    const products = await Product.find().sort({ createdAt: -1 });
+    const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+    const limit = parseInt(req.query.limit, 10) || 0;
+
+    const query = {};
+    const totalProducts = await Product.countDocuments(query);
+
+    let productQuery = Product.find(query).sort({ createdAt: -1 });
+
+    if (limit > 0) {
+      const skip = (page - 1) * limit;
+      productQuery = productQuery.skip(skip).limit(limit);
+    }
+
+    const products = await productQuery;
+    const totalPages = limit > 0 ? Math.ceil(totalProducts / limit) : 1;
+
     res.status(200).json({
       success: true,
       count: products.length,
+      totalProducts,
+      pagination: {
+        page,
+        limit: limit > 0 ? limit : totalProducts,
+        totalPages,
+        totalProducts,
+        hasNextPage: limit > 0 ? page < totalPages : false,
+        hasPrevPage: limit > 0 ? page > 1 : false,
+      },
       data: products,
       products,
       message: "Products fetched successfully",
