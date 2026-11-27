@@ -1,0 +1,300 @@
+.admin-container {
+  min-height: 100vh;
+  background: #f8f3f7;
+  color: #29202b;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.admin-header {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  padding: 16px 6%;
+  border-bottom: 1px solid #ebdcf5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.admin-header-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.admin-header-brand h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 24px;
+  color: #70469b;
+  margin: 0;
+}
+
+.admin-badge {
+  background: #f1e4fb;
+  color: #70469b;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  border: 1px solid #ebdcf5;
+}
+
+.admin-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.store-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #70469b;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid #ebdcf5;
+  background: #faf6fd;
+  transition: all 0.25s ease;
+}
+
+.store-link-btn:hover {
+  background: #70469b;
+  color: white;
+}
+
+.admin-main {
+  padding: 35px 6% 60px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.admin-tabs-nav {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 30px;
+  border-bottom: 1px solid #ebdcf5;
+  padding-bottom: 12px;
+  overflow-x: auto;
+}
+
+.admin-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 25px;
+  background: #ffffff;
+  border: 1px solid #ebdcf5;
+  color: #6a537d;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+
+.admin-tab-btn:hover {
+  background: #faf6fd;
+  color: #70469b;
+}
+
+.admin-tab-btn.active {
+  background: #70469b;
+  color: #ffffff;
+  border-color: #70469b;
+  box-shadow: 0 4px 14px rgba(112, 70, 155, 0.25);
+}
+
+.admin-toast-banner {
+  padding: 12px 20px;
+  border-radius: 12px;
+  margin-bottom: 25px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  animation: slideInDown 0.3s ease;
+}
+
+.admin-toast-banner.success {
+  background: #dcfce7;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+
+.admin-toast-banner.error {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+}
+
+.admin-card {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid #ebdcf5;
+  padding: 30px;
+  box-shadow: 0 8px 30px rgba(112, 70, 155, 0.05);
+  margin-bottom: 30px;
+}
+
+.admin-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #f2e8f8;
+}
+
+.admin-card-header h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  color: #38234e;
+  margin: 0;
+}
+
+.admin-table-wrapper {
+  overflow-x: auto;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.admin-table th {
+  padding: 14px 18px;
+  background: #faf6fd;
+  color: #70469b;
+  font-size: 12px;
+  letter-spacing: 1px;
+  font-weight: 700;
+  text-transform: uppercase;
+  border-bottom: 1px solid #ebdcf5;
+}
+
+.admin-table td {
+  padding: 16px 18px;
+  border-bottom: 1px solid #f3e9f9;
+  font-size: 14px;
+  color: #38234e;
+  vertical-align: middle;
+}
+
+.table-product-cell {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.table-product-thumb {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  object-fit: cover;
+  background: #f7effd;
+  border: 1px solid #ebdcf5;
+  flex-shrink: 0;
+}
+
+.table-category-pill {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  background: #f4ecfa;
+  color: #70469b;
+}
+
+.table-stock-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 600;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+.table-stock-badge.in-stock {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.table-stock-badge.low-stock {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+.table-stock-badge.out-of-stock {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.table-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.action-edit-btn,
+.action-delete-btn {
+  border: none;
+  padding: 7px 14px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+}
+
+.action-edit-btn {
+  background: #f1e4fb;
+  color: #70469b;
+}
+
+.action-edit-btn:hover {
+  background: #70469b;
+  color: white;
+}
+
+.action-delete-btn {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.action-delete-btn:hover {
+  background: #b91c1c;
+  color: white;
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 768px) {
+  .admin-header {
+    padding: 14px 4%;
+  }
+  .admin-main {
+    padding: 20px 4% 40px;
+  }
+}

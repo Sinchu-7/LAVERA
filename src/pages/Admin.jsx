@@ -1,5 +1,18 @@
-
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import {
+  Package,
+  PlusCircle,
+  Boxes,
+  BarChart3,
+  ExternalLink,
+  Edit2,
+  Trash2,
+  AlertCircle,
+  CheckCircle2,
+  Sparkles,
+} from "lucide-react";
+import "../styles/Admin.css";
 
 const API = "http://localhost:5000/api/products";
 
@@ -20,16 +33,22 @@ function Admin() {
   const [products, setProducts] = useState([]);
   const [form, setForm] = useState(emptyProduct);
   const [editingId, setEditingId] = useState(null);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState({ text: "", type: "" });
   const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("products");
+
+  const showToast = (text, type = "success") => {
+    setMessage({ text, type });
+    setTimeout(() => setMessage({ text: "", type: "" }), 3000);
+  };
 
   const fetchProducts = async () => {
     try {
       const response = await fetch(API);
       const data = await response.json();
-      setProducts(data.products || []);
+      setProducts(data.products || data.data || []);
     } catch {
-      setMessage("Unable to load products.");
+      showToast("Unable to connect to backend server.", "error");
     }
   };
 
@@ -48,7 +67,6 @@ function Admin() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setMessage("");
 
     try {
       const productData = {
@@ -75,12 +93,13 @@ function Admin() {
         throw new Error(data.message || "Operation failed");
       }
 
-      setMessage(data.message);
+      showToast(data.message || (editingId ? "Product updated" : "Product created"), "success");
       setForm(emptyProduct);
       setEditingId(null);
+      setActiveTab("products");
       await fetchProducts();
     } catch (error) {
-      setMessage(error.message);
+      showToast(error.message, "error");
     } finally {
       setLoading(false);
     }
@@ -100,7 +119,7 @@ function Admin() {
       reviews: product.reviews ?? 0,
       featured: product.featured || false,
     });
-
+    setActiveTab("add");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -120,158 +139,345 @@ function Admin() {
         throw new Error(data.message || "Delete failed");
       }
 
-      setMessage(data.message);
+      showToast(data.message || "Product deleted", "success");
       await fetchProducts();
     } catch (error) {
-      setMessage(error.message);
+      showToast(error.message, "error");
     }
   };
 
   const cancelEdit = () => {
     setEditingId(null);
     setForm(emptyProduct);
-  };
-
-  const styles = {
-    page: {
-      minHeight: "100vh",
-      background: "#f8f3f7",
-      padding: "35px 5%",
-      color: "#29202b",
-      fontFamily: "Arial, sans-serif",
-    },
-    heading: {
-      color: "#806080",
-      marginBottom: "25px",
-    },
-    form: {
-      background: "white",
-      padding: "25px",
-      borderRadius: "15px",
-      maxWidth: "750px",
-      marginBottom: "35px",
-      boxShadow: "0 4px 20px #0000000d",
-    },
-    input: {
-      width: "100%",
-      padding: "12px",
-      margin: "8px 0 15px",
-      border: "1px solid #ddd",
-      borderRadius: "7px",
-      boxSizing: "border-box",
-    },
-    button: {
-      padding: "11px 20px",
-      background: "#806080",
-      color: "white",
-      border: "none",
-      borderRadius: "7px",
-      cursor: "pointer",
-      marginRight: "8px",
-    },
+    setActiveTab("products");
   };
 
   return (
-    <main style={styles.page}>
-      <h1 style={styles.heading}>LAVERA Admin Dashboard</h1>
-      <p>Manage your beauty products and inventory.</p>
-
-      <form style={styles.form} onSubmit={handleSubmit}>
-        <h2>{editingId ? "Edit Product" : "Add New Product"}</h2>
-
-        <label>Product Name</label>
-        <input style={styles.input} name="name" value={form.name}
-          onChange={handleChange} required />
-
-        <label>Description</label>
-        <textarea style={styles.input} name="description"
-          value={form.description} onChange={handleChange} required />
-
-        <label>Price (₹)</label>
-        <input style={styles.input} type="number" name="price"
-          value={form.price} onChange={handleChange} min="0" required />
-
-        <label>Original Price (₹)</label>
-        <input style={styles.input} type="number" name="originalPrice"
-          value={form.originalPrice} onChange={handleChange} min="0" />
-
-        <label>Category</label>
-        <select style={styles.input} name="category"
-          value={form.category} onChange={handleChange}>
-          <option>Skincare</option>
-          <option>Makeup</option>
-          <option>Body Care</option>
-        </select>
-
-        <label>Image URL</label>
-        <input style={styles.input} name="image" value={form.image}
-          onChange={handleChange} required />
-
-        <label>Stock</label>
-        <input style={styles.input} type="number" name="stock"
-          value={form.stock} onChange={handleChange} min="0" required />
-
-        <label>Rating</label>
-        <input style={styles.input} type="number" name="rating"
-          value={form.rating} onChange={handleChange} min="0" max="5" step="0.1" />
-
-        <label>Number of Reviews</label>
-        <input style={styles.input} type="number" name="reviews"
-          value={form.reviews} onChange={handleChange} min="0" />
-
-        <label>
-          <input type="checkbox" name="featured"
-            checked={form.featured} onChange={handleChange} />
-          {" "}Featured Product
-        </label>
-
-        <br /><br />
-
-        <button style={styles.button} disabled={loading}>
-          {loading ? "Saving..." : editingId ? "Update Product" : "Add Product"}
-        </button>
-
-        {editingId && (
-          <button type="button" style={styles.button} onClick={cancelEdit}>
-            Cancel
-          </button>
-        )}
-      </form>
-
-      {message && <p>{message}</p>}
-
-      <h2>All Products ({products.length})</h2>
-
-      {products.map((product) => (
-        <div key={product._id} style={{
-          background: "white",
-          padding: "15px",
-          borderRadius: "10px",
-          marginBottom: "12px",
-          display: "flex",
-          alignItems: "center",
-          gap: "15px",
-          flexWrap: "wrap",
-        }}>
-          <img src={product.image} alt={product.name}
-            style={{ width: "65px", height: "65px", objectFit: "cover", borderRadius: "8px" }} />
-
-          <div style={{ flex: 1 }}>
-            <strong>{product.name}</strong>
-            <p>₹{product.price} | Stock: {product.stock}</p>
-          </div>
-
-          <button style={styles.button} onClick={() => handleEdit(product)}>
-            Edit
-          </button>
-
-          <button style={{ ...styles.button, background: "#b43e55" }}
-            onClick={() => handleDelete(product._id)}>
-            Delete
-          </button>
+    <div className="admin-container">
+      <header className="admin-header">
+        <div className="admin-header-brand">
+          <h1>🦋 LAVÉRA</h1>
+          <span className="admin-badge">ADMIN CONSOLE</span>
         </div>
-      ))}
-    </main>
+
+        <div className="admin-header-actions">
+          <Link to="/" className="store-link-btn">
+            View Live Store <ExternalLink size={14} />
+          </Link>
+        </div>
+      </header>
+
+      <main className="admin-main">
+        {/* Navigation Tabs */}
+        <nav className="admin-tabs-nav">
+          <button
+            className={`admin-tab-btn ${activeTab === "products" ? "active" : ""}`}
+            onClick={() => setActiveTab("products")}
+          >
+            <Package size={17} /> Products Directory ({products.length})
+          </button>
+          <button
+            className={`admin-tab-btn ${activeTab === "add" ? "active" : ""}`}
+            onClick={() => setActiveTab("add")}
+          >
+            <PlusCircle size={17} /> {editingId ? "Edit Product" : "Add Product"}
+          </button>
+        </nav>
+
+        {/* Feedback Alert Banner */}
+        {message.text && (
+          <div className={`admin-toast-banner ${message.type}`}>
+            {message.type === "success" ? <CheckCircle2 size={18} /> : <AlertCircle size={18} />}
+            <span>{message.text}</span>
+          </div>
+        )}
+
+        {/* Tab Content: Products Table */}
+        {activeTab === "products" && (
+          <div className="admin-card">
+            <div className="admin-card-header">
+              <h2>Product Catalog ({products.length})</h2>
+              <button
+                className="action-edit-btn"
+                onClick={() => { setForm(emptyProduct); setEditingId(null); setActiveTab("add"); }}
+              >
+                <PlusCircle size={15} /> Add New Product
+              </button>
+            </div>
+
+            <div className="admin-table-wrapper">
+              <table className="admin-table">
+                <thead>
+                  <tr>
+                    <th>Product</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Stock</th>
+                    <th>Rating</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {products.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} style={{ textAlign: "center", padding: "40px 0", color: "#8c7b99" }}>
+                        No products available in database. Add your first product to begin!
+                      </td>
+                    </tr>
+                  ) : (
+                    products.map((product) => (
+                      <tr key={product._id || product.id}>
+                        <td>
+                          <div className="table-product-cell">
+                            <img
+                              src={product.image}
+                              alt={product.name}
+                              className="table-product-thumb"
+                            />
+                            <div>
+                              <strong>{product.name}</strong>
+                              {product.featured && (
+                                <span style={{ marginLeft: 8, fontSize: 10, color: "#70469b" }}>✦ FEATURED</span>
+                              )}
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <span className="table-category-pill">{product.category}</span>
+                        </td>
+                        <td>
+                          <strong>₹{product.price}</strong>
+                          {product.originalPrice > product.price && (
+                            <del style={{ marginLeft: 6, color: "#aaa", fontSize: 12 }}>
+                              ₹{product.originalPrice}
+                            </del>
+                          )}
+                        </td>
+                        <td>
+                          <span
+                            className={`table-stock-badge ${
+                              product.stock === 0
+                                ? "out-of-stock"
+                                : product.stock <= 5
+                                ? "low-stock"
+                                : "in-stock"
+                            }`}
+                          >
+                            {product.stock === 0
+                              ? "Out of Stock"
+                              : product.stock <= 5
+                              ? `Low: ${product.stock}`
+                              : `${product.stock} units`}
+                          </span>
+                        </td>
+                        <td>★ {Number(product.rating || 0).toFixed(1)} ({product.reviews || 0})</td>
+                        <td>
+                          <div className="table-actions">
+                            <button
+                              className="action-edit-btn"
+                              onClick={() => handleEdit(product)}
+                            >
+                              <Edit2 size={13} /> Edit
+                            </button>
+                            <button
+                              className="action-delete-btn"
+                              onClick={() => handleDelete(product._id || product.id)}
+                            >
+                              <Trash2 size={13} /> Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Tab Content: Add / Edit Product */}
+        {activeTab === "add" && (
+          <div className="admin-card" style={{ maxWidth: 800, margin: "0 auto" }}>
+            <div className="admin-card-header">
+              <h2>{editingId ? "Edit Product Details" : "Create New Beauty Product"}</h2>
+            </div>
+
+            <form onSubmit={handleSubmit}>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+                <div style={{ gridColumn: "1 / -1" }}>
+                  <label style={{ display: "block", marginBottom: 6, fontWeight: 600, fontSize: 13 }}>Product Name *</label>
+                  <input
+                    type="text"
+                    name="name"
+                    value={form.name}
+                    onChange={handleChange}
+                    placeholder="e.g. Lavender Infused Overnight Serum"
+                    required
+                    style={{ width: "100%", padding: "11px 14px", border: "1px solid #ebdcf5", borderRadius: 10, outline: "none" }}
+                  />
+                </div>
+
+                <div style={{ gridColumn: "1 / -1" }}>
+                  <label style={{ display: "block", marginBottom: 6, fontWeight: 600, fontSize: 13 }}>Description *</label>
+                  <textarea
+                    name="description"
+                    value={form.description}
+                    onChange={handleChange}
+                    placeholder="Describe product formulation and skin benefits..."
+                    rows={3}
+                    required
+                    style={{ width: "100%", padding: "11px 14px", border: "1px solid #ebdcf5", borderRadius: 10, outline: "none" }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: "block", marginBottom: 6, fontWeight: 600, fontSize: 13 }}>Price (₹) *</label>
+                  <input
+                    type="number"
+                    name="price"
+                    value={form.price}
+                    onChange={handleChange}
+                    min="1"
+                    placeholder="e.g. 799"
+                    required
+                    style={{ width: "100%", padding: "11px 14px", border: "1px solid #ebdcf5", borderRadius: 10, outline: "none" }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: "block", marginBottom: 6, fontWeight: 600, fontSize: 13 }}>Original / Old Price (₹)</label>
+                  <input
+                    type="number"
+                    name="originalPrice"
+                    value={form.originalPrice}
+                    onChange={handleChange}
+                    min="0"
+                    placeholder="e.g. 999"
+                    style={{ width: "100%", padding: "11px 14px", border: "1px solid #ebdcf5", borderRadius: 10, outline: "none" }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: "block", marginBottom: 6, fontWeight: 600, fontSize: 13 }}>Category *</label>
+                  <select
+                    name="category"
+                    value={form.category}
+                    onChange={handleChange}
+                    style={{ width: "100%", padding: "11px 14px", border: "1px solid #ebdcf5", borderRadius: 10, outline: "none" }}
+                  >
+                    <option value="Skincare">Skincare</option>
+                    <option value="Makeup">Makeup</option>
+                    <option value="Body Care">Body Care</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ display: "block", marginBottom: 6, fontWeight: 600, fontSize: 13 }}>Stock Inventory *</label>
+                  <input
+                    type="number"
+                    name="stock"
+                    value={form.stock}
+                    onChange={handleChange}
+                    min="0"
+                    placeholder="Available units"
+                    required
+                    style={{ width: "100%", padding: "11px 14px", border: "1px solid #ebdcf5", borderRadius: 10, outline: "none" }}
+                  />
+                </div>
+
+                <div style={{ gridColumn: "1 / -1" }}>
+                  <label style={{ display: "block", marginBottom: 6, fontWeight: 600, fontSize: 13 }}>Image URL *</label>
+                  <input
+                    type="url"
+                    name="image"
+                    value={form.image}
+                    onChange={handleChange}
+                    placeholder="https://images.unsplash.com/..."
+                    required
+                    style={{ width: "100%", padding: "11px 14px", border: "1px solid #ebdcf5", borderRadius: 10, outline: "none" }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: "block", marginBottom: 6, fontWeight: 600, fontSize: 13 }}>Rating (0 - 5)</label>
+                  <input
+                    type="number"
+                    name="rating"
+                    value={form.rating}
+                    onChange={handleChange}
+                    min="0"
+                    max="5"
+                    step="0.1"
+                    style={{ width: "100%", padding: "11px 14px", border: "1px solid #ebdcf5", borderRadius: 10, outline: "none" }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ display: "block", marginBottom: 6, fontWeight: 600, fontSize: 13 }}>Reviews Count</label>
+                  <input
+                    type="number"
+                    name="reviews"
+                    value={form.reviews}
+                    onChange={handleChange}
+                    min="0"
+                    style={{ width: "100%", padding: "11px 14px", border: "1px solid #ebdcf5", borderRadius: 10, outline: "none" }}
+                  />
+                </div>
+
+                <div style={{ gridColumn: "1 / -1", display: "flex", alignItems: "center", gap: 10, marginTop: 6 }}>
+                  <input
+                    type="checkbox"
+                    id="featured-check"
+                    name="featured"
+                    checked={form.featured}
+                    onChange={handleChange}
+                  />
+                  <label htmlFor="featured-check" style={{ fontWeight: 600, fontSize: 13, cursor: "pointer" }}>
+                    Mark as Featured / Bestseller Collection
+                  </label>
+                </div>
+              </div>
+
+              <div style={{ display: "flex", gap: 12, marginTop: 28 }}>
+                <button
+                  type="submit"
+                  disabled={loading}
+                  style={{
+                    background: "#70469b",
+                    color: "white",
+                    border: "none",
+                    padding: "13px 28px",
+                    borderRadius: 25,
+                    fontWeight: 600,
+                    cursor: "pointer",
+                  }}
+                >
+                  {loading ? "Saving..." : editingId ? "Update Product" : "Save Product"}
+                </button>
+                {editingId && (
+                  <button
+                    type="button"
+                    onClick={cancelEdit}
+                    style={{
+                      background: "#f1e4fb",
+                      color: "#70469b",
+                      border: "none",
+                      padding: "13px 24px",
+                      borderRadius: 25,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                    }}
+                  >
+                    Cancel
+                  </button>
+                )}
+              </div>
+            </form>
+          </div>
+        )}
+      </main>
+    </div>
   );
 }
 
