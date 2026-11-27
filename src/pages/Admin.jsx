@@ -188,10 +188,13 @@ function Admin() {
     setActiveTab("products");
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this product?")) {
-      return;
-    }
+  const [deletingProduct, setDeletingProduct] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const confirmDelete = async () => {
+    if (!deletingProduct) return;
+    const id = deletingProduct._id || deletingProduct.id;
+    setIsDeleting(true);
 
     try {
       const response = await fetch(`${API}/${id}`, {
@@ -204,11 +207,18 @@ function Admin() {
         throw new Error(data.message || "Delete failed");
       }
 
-      showToast(data.message || "Product deleted", "success");
-      await fetchProducts();
+      showToast(data.message || "Product deleted successfully", "success");
+      setProducts((prev) => prev.filter((p) => (p._id || p.id) !== id));
+      setDeletingProduct(null);
     } catch (error) {
       showToast(error.message, "error");
+    } finally {
+      setIsDeleting(false);
     }
+  };
+
+  const cancelDelete = () => {
+    setDeletingProduct(null);
   };
 
   return (
