@@ -138,6 +138,19 @@
   background: #ffffff;
 }
 
+.checkout-fields input.input-error,
+.checkout-fields textarea.input-error {
+  border-color: #dc2626 !important;
+  background: #fef2f2 !important;
+}
+
+.field-error {
+  font-size: 11px;
+  color: #dc2626;
+  font-weight: 500;
+  margin-top: -2px;
+}
+
 .shipping-method-section,
 .payment-method-section {
   margin-top: 28px;

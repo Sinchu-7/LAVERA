@@ -66,17 +66,78 @@ function Checkout() {
   const shippingFee = shippingMethod === "express" ? baseShipping + 99 : baseShipping;
   const total = subtotal + shippingFee;
 
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
+
+  const validateField = (name, value) => {
+    switch (name) {
+      case "name":
+        if (!value.trim()) return "Full name is required";
+        if (value.trim().length < 2) return "Name must be at least 2 characters";
+        return "";
+      case "email":
+        if (!value.trim()) return "Email address is required";
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim())) return "Enter a valid email address (e.g. name@domain.com)";
+        return "";
+      case "phone":
+        if (!value.trim()) return "Phone number is required";
+        if (!/^[6-9]\d{9}$/.test(value.trim())) return "Enter a valid 10-digit mobile number";
+        return "";
+      case "address":
+        if (!value.trim()) return "Full address is required";
+        if (value.trim().length < 8) return "Please enter detailed delivery address";
+        return "";
+      case "city":
+        if (!value.trim()) return "City is required";
+        return "";
+      case "state":
+        if (!value.trim()) return "State is required";
+        return "";
+      case "pincode":
+        if (!value.trim()) return "PIN code is required";
+        if (!/^\d{6}$/.test(value.trim())) return "Enter a valid 6-digit postal PIN";
+        return "";
+      default:
+        return "";
+    }
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    setTouched((prev) => ({ ...prev, [name]: true }));
+    const error = validateField(name, value);
+    setErrors((prev) => ({ ...prev, [name]: error }));
+  };
+
   const handleChange = (e) => {
+    const { name, value } = e.target;
     setForm({
       ...form,
-      [e.target.name]: e.target.value,
+      [name]: value,
     });
+    if (touched[name]) {
+      const error = validateField(name, value);
+      setErrors((prev) => ({ ...prev, [name]: error }));
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
     if (cart.length === 0) return;
+
+    // Validate all fields
+    const newErrors = {};
+    Object.keys(form).forEach((key) => {
+      const err = validateField(key, form[key]);
+      if (err) newErrors[key] = err;
+    });
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      setTouched(Object.keys(form).reduce((acc, k) => ({ ...acc, [k]: true }), {}));
+      return;
+    }
 
     const number = "LAV" + Date.now().toString().slice(-8);
     const estimatedDate = new Date();
@@ -216,10 +277,13 @@ function Checkout() {
                   name="name"
                   value={form.name}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   placeholder="Enter your full name"
+                  className={touched.name && errors.name ? "input-error" : ""}
                   required
                   maxLength={80}
                 />
+                {touched.name && errors.name && <span className="field-error">{errors.name}</span>}
               </label>
 
               <label>
@@ -229,9 +293,12 @@ function Checkout() {
                   name="email"
                   value={form.email}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   placeholder="example@email.com"
+                  className={touched.email && errors.email ? "input-error" : ""}
                   required
                 />
+                {touched.email && errors.email && <span className="field-error">{errors.email}</span>}
               </label>
 
               <label>
@@ -241,11 +308,13 @@ function Checkout() {
                   name="phone"
                   value={form.phone}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   placeholder="10-digit mobile number"
-                  pattern="[0-9]{10}"
+                  className={touched.phone && errors.phone ? "input-error" : ""}
                   maxLength={10}
                   required
                 />
+                {touched.phone && errors.phone && <span className="field-error">{errors.phone}</span>}
               </label>
 
               <label className="full-field">
@@ -254,10 +323,13 @@ function Checkout() {
                   name="address"
                   value={form.address}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   placeholder="House/Flat number, apartment, street, area..."
+                  className={touched.address && errors.address ? "input-error" : ""}
                   rows={3}
                   required
                 />
+                {touched.address && errors.address && <span className="field-error">{errors.address}</span>}
               </label>
 
               <label>
@@ -266,9 +338,12 @@ function Checkout() {
                   name="city"
                   value={form.city}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   placeholder="City"
+                  className={touched.city && errors.city ? "input-error" : ""}
                   required
                 />
+                {touched.city && errors.city && <span className="field-error">{errors.city}</span>}
               </label>
 
               <label>
@@ -277,9 +352,12 @@ function Checkout() {
                   name="state"
                   value={form.state}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   placeholder="State"
+                  className={touched.state && errors.state ? "input-error" : ""}
                   required
                 />
+                {touched.state && errors.state && <span className="field-error">{errors.state}</span>}
               </label>
 
               <label>
@@ -288,11 +366,13 @@ function Checkout() {
                   name="pincode"
                   value={form.pincode}
                   onChange={handleChange}
+                  onBlur={handleBlur}
                   placeholder="6-digit PIN code"
-                  pattern="[0-9]{6}"
+                  className={touched.pincode && errors.pincode ? "input-error" : ""}
                   maxLength={6}
                   required
                 />
+                {touched.pincode && errors.pincode && <span className="field-error">{errors.pincode}</span>}
               </label>
             </div>
 
