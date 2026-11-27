@@ -11,6 +11,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 
 import ProductCard from "../components/ProductCard";
+import ProductDetailModal from "../components/ProductDetailModal";
 import "../styles/Shop.css";
 import "../styles/BestSellers.css";
 
@@ -24,6 +25,7 @@ function Shop() {
   const [category, setCategory] = useState(() => searchParams.get("category") || "All");
   const [onlyInStock, setOnlyInStock] = useState(false);
   const [sort, setSort] = useState(() => searchParams.get("sort") || "default");
+  const [selectedProduct, setSelectedProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -279,7 +281,10 @@ function Shop() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.07 }}
                 >
-                  <ProductCard product={product} />
+                  <ProductCard
+                    product={product}
+                    onSelectProduct={setSelectedProduct}
+                  />
                 </motion.div>
               ))}
             </motion.div>
@@ -292,6 +297,12 @@ function Shop() {
             </motion.div>
           )}
         </AnimatePresence>
+      )}
+      {selectedProduct && (
+        <ProductDetailModal
+          product={selectedProduct}
+          onClose={() => setSelectedProduct(null)}
+        />
       )}
     </section>
   );

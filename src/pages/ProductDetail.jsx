@@ -1,0 +1,224 @@
+import { useState, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
+import {
+  Star,
+  ShoppingBag,
+  Heart,
+  Check,
+  ShieldCheck,
+  Truck,
+  RotateCcw,
+  ArrowLeft,
+} from "lucide-react";
+import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
+import "../styles/ProductDetail.css";
+
+const API = "http://localhost:5000/api/products";
+
+function ProductDetail() {
+  const { id } = useParams();
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [quantity, setQuantity] = useState(1);
+  const [added, setAdded] = useState(false);
+  const [activeTab, setActiveTab] = useState("description");
+
+  const [isWishlisted, setIsWishlisted] = useState(false);
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      try {
+        setLoading(true);
+        const res = await fetch(`${API}/${id}`);
+        if (!res.ok) throw new Error("Product not found");
+        const data = await res.json();
+        const p = data.product || data;
+        setProduct(p);
+
+        try {
+          const wishlist = JSON.parse(localStorage.getItem("lavera-wishlist") || "[]");
+          setIsWishlisted(wishlist.some((item) => (item._id || item.id) === (p._id || p.id)));
+        } catch {
+          // ignore
+        }
+      } catch (err) {
+        setError(err.message || "Failed to load product");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProduct();
+  }, [id]);
+
+  const handleWishlist = () => {
+    if (!product) return;
+    try {
+      const pId = product._id || product.id;
+      const wishlist = JSON.parse(localStorage.getItem("lavera-wishlist") || "[]");
+      const updated = isWishlisted
+        ? wishlist.filter((item) => (item._id || item.id) !== pId)
+        : [...wishlist, product];
+      localStorage.setItem("lavera-wishlist", JSON.stringify(updated));
+      setIsWishlisted(!isWishlisted);
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleAddToCart = () => {
+    if (!product) return;
+    try {
+      const pId = product._id || product.id;
+      const cart = JSON.parse(localStorage.getItem("lavera-cart") || "[]");
+      const existing = cart.find((item) => (item._id || item.id) === pId);
+      const updated = existing
+        ? cart.map((item) =>
+            (item._id || item.id) === pId
+              ? { ...item, quantity: item.quantity + quantity }
+              : item
+          )
+        : [...cart, { ...product, id: pId, quantity }];
+      localStorage.setItem("lavera-cart", JSON.stringify(updated));
+      setAdded(true);
+      setTimeout(() => setAdded(false), 1800);
+    } catch {
+      // ignore
+    }
+  };
+
+  return (
+    <>
+      <Navbar />
+      <main style={{ padding: "60px 8%", minHeight: "80vh", background: "#faf7ff" }}>
+        <Link to="/shop" style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "#70469b", marginBottom: 25, fontSize: 14 }}>
+          <ArrowLeft size={16} /> Back to Shop
+        </Link>
+
+        {loading ? (
+          <p style={{ textAlign: "center", padding: 50, color: "#7a6589" }}>Loading product details...</p>
+        ) : error || !product ? (
+          <div style={{ textAlign: "center", padding: 50 }}>
+            <h3>Product not found</h3>
+            <Link to="/shop" style={{ color: "#70469b", textDecoration: "underline" }}>Return to shop</Link>
+          </div>
+        ) : (
+          <div className="product-modal-content" style={{ margin: "0 auto", boxShadow: "0 10px 30px rgba(0,0,0,0.06)" }}>
+            <div className="modal-grid">
+              <div className="modal-image-col">
+                <div className="modal-image-frame">
+                  <img src={product.image} alt={product.name} />
+                </div>
+              </div>
+
+              <div className="modal-details-col">
+                <span className="modal-category">{product.category}</span>
+                <h1 className="modal-title">{product.name}</h1>
+
+                <div className="modal-rating-row">
+                  <div className="rating-stars">
+                    <Star size={16} fill="#eab308" color="#eab308" />
+                    <strong>{Number(product.rating || 4.8).toFixed(1)}</strong>
+                    <span>({product.reviews || 0} reviews)</span>
+                  </div>
+                  {product.stock > 0 ? (
+                    <span className="stock-tag in-stock">
+                      <Check size={13} /> In Stock ({product.stock})
+                    </span>
+                  ) : (
+                    <span className="stock-tag out-of-stock">Out of Stock</span>
+                  )}
+                </div>
+
+                <div className="modal-price-row">
+                  <span className="modal-current-price">₹{product.price}</span>
+                  {product.originalPrice > product.price && (
+                    <del className="modal-orig-price">₹{product.originalPrice}</del>
+                  )}
+                  <span className="tax-note">Inclusive of all taxes</span>
+                </div>
+
+                <div className="modal-tabs-header">
+                  <button
+                    className={`modal-tab-btn ${activeTab === "description" ? "active" : ""}`}
+                    onClick={() => setActiveTab("description")}
+                  >
+                    Description
+                  </button>
+                  <button
+                    className={`modal-tab-btn ${activeTab === "ingredients" ? "active" : ""}`}
+                    onClick={() => setActiveTab("ingredients")}
+                  >
+                    Ingredients
+                  </button>
+                  <button
+                    className={`modal-tab-btn ${activeTab === "ritual" ? "active" : ""}`}
+                    onClick={() => setActiveTab("ritual")}
+                  >
+                    How to Use
+                  </button>
+                </div>
+
+                <div className="modal-tab-body">
+                  {activeTab === "description" && (
+                    <p>{product.description}</p>
+                  )}
+                  {activeTab === "ingredients" && (
+                    <p>Clean botanical actives, lavender flower extracts, hyaluronic acid, vitamin E.</p>
+                  )}
+                  {activeTab === "ritual" && (
+                    <p>Apply 2-3 drops to clean fingertips and smooth over face and neck morning and evening.</p>
+                  )}
+                </div>
+
+                <div className="modal-actions-area">
+                  <div className="modal-qty-selector">
+                    <button
+                      onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                      disabled={quantity <= 1}
+                    >
+                      -
+                    </button>
+                    <span>{quantity}</span>
+                    <button
+                      onClick={() => setQuantity(quantity + 1)}
+                      disabled={product.stock > 0 && quantity >= product.stock}
+                    >
+                      +
+                    </button>
+                  </div>
+
+                  <button
+                    className={`modal-add-cart-btn ${added ? "added" : ""}`}
+                    onClick={handleAddToCart}
+                    disabled={product.stock === 0}
+                  >
+                    {product.stock === 0 ? "Out of Stock" : added ? "Added to Bag!" : `Add ${quantity} to Bag`}
+                  </button>
+
+                  <button
+                    className={`modal-wishlist-btn ${isWishlisted ? "active" : ""}`}
+                    onClick={handleWishlist}
+                    aria-label="Wishlist"
+                  >
+                    <Heart size={20} fill={isWishlisted ? "#d65b91" : "none"} />
+                  </button>
+                </div>
+
+                <div className="modal-perks">
+                  <div><Truck size={16} /> Free Delivery above ₹999</div>
+                  <div><ShieldCheck size={16} /> 100% Authentic Quality</div>
+                  <div><RotateCcw size={16} /> 15-Day Easy Returns</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+      </main>
+      <Footer />
+    </>
+  );
+}
+
+export default ProductDetail;
