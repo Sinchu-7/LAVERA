@@ -5,6 +5,8 @@ const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/db");
 
+const productRoutes = require("./routes/productRoutes");
+
 const app = express();
 
 app.use(cors());
@@ -16,6 +18,9 @@ app.get("/", (req, res) => {
     status: "Backend is running successfully",
   });
 });
+
+// Product API routes
+app.use("/api/products", productRoutes);
 
 const PORT = process.env.PORT || 5000;
 

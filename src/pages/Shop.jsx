@@ -1,5 +1,5 @@
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import {
   Search,
   ShoppingBag,
@@ -12,87 +12,66 @@ import ProductCard from "../components/ProductCard";
 import "../styles/Shop.css";
 import "../styles/BestSellers.css";
 
-const products = [
-  {
-    id: 1,
-    name: "Lavender Glow Serum",
-    category: "Skincare",
-    price: 799,
-    oldPrice: 999,
-    rating: 4.9,
-    reviews: 128,
-    badge: "BESTSELLER",
-    image: "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?w=700",
-  },
-  {
-    id: 2,
-    name: "Rose Water Toner",
-    category: "Skincare",
-    price: 549,
-    oldPrice: 699,
-    rating: 4.8,
-    reviews: 96,
-    badge: "POPULAR",
-    image: "https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?w=700",
-  },
-  {
-    id: 3,
-    name: "Vitamin C Face Cream",
-    category: "Skincare",
-    price: 899,
-    oldPrice: 1099,
-    rating: 4.9,
-    reviews: 154,
-    badge: "TOP RATED",
-    image: "https://images.unsplash.com/photo-1556229010-6c3f2c9ca5f8?w=700",
-  },
-  {
-    id: 4,
-    name: "Butterfly Lip Gloss",
-    category: "Makeup",
-    price: 399,
-    oldPrice: 499,
-    rating: 4.7,
-    reviews: 82,
-    badge: "NEW",
-    image: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=700",
-  },
-  {
-    id: 5,
-    name: "Luxury Body Lotion",
-    category: "Body Care",
-    price: 649,
-    oldPrice: 799,
-    rating: 4.8,
-    reviews: 74,
-    badge: "POPULAR",
-    image: "https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?w=700",
-  },
-  {
-    id: 6,
-    name: "Beauty Essentials",
-    category: "Makeup",
-    price: 499,
-    oldPrice: 599,
-    rating: 4.6,
-    reviews: 65,
-    badge: "NEW",
-    image: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=700",
-  },
-];
-
 const categories = ["All", "Skincare", "Makeup", "Body Care"];
+const API = "http://localhost:5000/api/products";
 
 function Shop() {
+  const [products, setProducts] = useState([]);
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
   const [sort, setSort] = useState("default");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const response = await fetch(API);
+
+        if (!response.ok) {
+          throw new Error("Backend server could not load products.");
+        }
+
+        const data = await response.json();
+
+        const productList = Array.isArray(data)
+          ? data
+          : data.products || data.data || [];
+
+        if (!Array.isArray(productList)) {
+          throw new Error("Invalid product data received.");
+        }
+
+        setProducts(
+          productList.map((product) => ({
+            ...product,
+            id: product._id || product.id,
+            oldPrice: product.originalPrice || 0,
+            badge: product.featured ? "BESTSELLER" : "",
+          }))
+        );
+      } catch (err) {
+        console.error("Shop product loading error:", err);
+        setError(err.message || "Unable to load products.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
 
   const filteredProducts = useMemo(() => {
     let result = products.filter((product) => {
+      const name = (product.name || "").toLowerCase();
+      const productCategory = (product.category || "").toLowerCase();
+
       const matchesSearch =
-        product.name.toLowerCase().includes(search.toLowerCase()) ||
-        product.category.toLowerCase().includes(search.toLowerCase());
+        name.includes(search.toLowerCase()) ||
+        productCategory.includes(search.toLowerCase());
 
       const matchesCategory =
         category === "All" || product.category === category;
@@ -109,7 +88,7 @@ function Shop() {
     }
 
     return result;
-  }, [search, category, sort]);
+  }, [products, search, category, sort]);
 
   const clearFilters = () => {
     setSearch("");
@@ -126,12 +105,8 @@ function Shop() {
         transition={{ duration: 0.7 }}
       >
         <span>DISCOVER YOUR BEAUTY</span>
-        <h1>
-          Our Beauty <em>Collection</em>
-        </h1>
-        <p>
-          Find your favourites and let your natural beauty shine.
-        </p>
+        <h1>Our Beauty <em>Collection</em></h1>
+        <p>Find your favourites and let your natural beauty shine.</p>
       </motion.div>
 
       <div className="shop-toolbar">
@@ -195,45 +170,42 @@ function Shop() {
         )}
       </div>
 
-      <AnimatePresence mode="wait">
-        {filteredProducts.length > 0 ? (
-          <motion.div
-            key={`${category}-${search}-${sort}`}
-            className="products-grid shop-products"
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3 }}
-          >
-            {filteredProducts.map((product, index) => (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 25 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.07 }}
-              >
-                <ProductCard product={product} />
-              </motion.div>
-            ))}
-          </motion.div>
-        ) : (
-          <motion.div
-            className="shop-empty"
-            key="empty"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
-            <ShoppingBag size={45} />
-            <h2>No products found</h2>
-            <p>
-              We couldn't find anything matching your search.
-            </p>
-            <button onClick={clearFilters}>
-              Clear Filters
-            </button>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {loading ? (
+        <p>Loading products...</p>
+      ) : error ? (
+        <p>{error}</p>
+      ) : (
+        <AnimatePresence mode="wait">
+          {filteredProducts.length > 0 ? (
+            <motion.div
+              key={`${category}-${search}-${sort}`}
+              className="products-grid shop-products"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.3 }}
+            >
+              {filteredProducts.map((product, index) => (
+                <motion.div
+                  key={product._id || product.id || index}
+                  initial={{ opacity: 0, y: 25 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.07 }}
+                >
+                  <ProductCard product={product} />
+                </motion.div>
+              ))}
+            </motion.div>
+          ) : (
+            <motion.div className="shop-empty" key="empty">
+              <ShoppingBag size={45} />
+              <h2>No products found</h2>
+              <p>We couldn't find anything matching your search.</p>
+              <button onClick={clearFilters}>Clear Filters</button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      )}
     </section>
   );
 }
