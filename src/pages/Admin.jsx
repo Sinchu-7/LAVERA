@@ -36,6 +36,52 @@ function Admin() {
   const [message, setMessage] = useState({ text: "", type: "" });
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("products");
+  const [imgLoadError, setImgLoadError] = useState(false);
+
+  const autoFillSample = () => {
+    const samples = [
+      {
+        name: "Wild Lavender Glow Elixir",
+        description: "Intense botanical facial oil with organic lavender and squalane for radiant skin.",
+        price: "849",
+        originalPrice: "1099",
+        category: "Skincare",
+        image: "https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?w=600",
+        stock: "25",
+        rating: "4.9",
+        reviews: "38",
+        featured: true,
+      },
+      {
+        name: "Berry Velvet Lip Tint",
+        description: "Hydrating tinted butter balm infused with rosehip and sheer berry pigments.",
+        price: "499",
+        originalPrice: "649",
+        category: "Makeup",
+        image: "https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=600",
+        stock: "40",
+        rating: "4.8",
+        reviews: "52",
+        featured: false,
+      },
+      {
+        name: "Silk Lavender Body Polish",
+        description: "Gentle exfoliating body scrub infused with Himalayan salts and lavender oil.",
+        price: "699",
+        originalPrice: "899",
+        category: "Body Care",
+        image: "https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?w=600",
+        stock: "18",
+        rating: "4.7",
+        reviews: "29",
+        featured: true,
+      },
+    ];
+    const picked = samples[Math.floor(Math.random() * samples.length)];
+    setForm(picked);
+    setImgLoadError(false);
+    showToast("Sample product template loaded!");
+  };
 
   const showToast = (text, type = "success") => {
     setMessage({ text, type });
@@ -298,9 +344,19 @@ function Admin() {
 
         {/* Tab Content: Add / Edit Product */}
         {activeTab === "add" && (
-          <div className="admin-card" style={{ maxWidth: 800, margin: "0 auto" }}>
+          <div className="admin-card" style={{ maxWidth: 850, margin: "0 auto" }}>
             <div className="admin-card-header">
               <h2>{editingId ? "Edit Product Details" : "Create New Beauty Product"}</h2>
+              {!editingId && (
+                <button
+                  type="button"
+                  className="action-edit-btn"
+                  onClick={autoFillSample}
+                  style={{ background: "#f5edf9" }}
+                >
+                  <Sparkles size={14} /> Auto-fill Sample Product
+                </button>
+              )}
             </div>
 
             <form onSubmit={handleSubmit}>
@@ -388,15 +444,32 @@ function Admin() {
 
                 <div style={{ gridColumn: "1 / -1" }}>
                   <label style={{ display: "block", marginBottom: 6, fontWeight: 600, fontSize: 13 }}>Image URL *</label>
-                  <input
-                    type="url"
-                    name="image"
-                    value={form.image}
-                    onChange={handleChange}
-                    placeholder="https://images.unsplash.com/..."
-                    required
-                    style={{ width: "100%", padding: "11px 14px", border: "1px solid #ebdcf5", borderRadius: 10, outline: "none" }}
-                  />
+                  <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+                    <input
+                      type="url"
+                      name="image"
+                      value={form.image}
+                      onChange={(e) => { handleChange(e); setImgLoadError(false); }}
+                      placeholder="https://images.unsplash.com/..."
+                      required
+                      style={{ flex: 1, padding: "11px 14px", border: "1px solid #ebdcf5", borderRadius: 10, outline: "none" }}
+                    />
+                    {form.image && (
+                      <div style={{ width: 50, height: 50, borderRadius: 10, overflow: "hidden", border: "1px solid #ebdcf5", background: "#f6effb", flexShrink: 0 }}>
+                        <img
+                          src={form.image}
+                          alt="Preview"
+                          onError={() => setImgLoadError(true)}
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                  {imgLoadError && (
+                    <small style={{ color: "#dc2626", marginTop: 4, display: "block" }}>
+                      Warning: Could not preview image at this URL
+                    </small>
+                  )}
                 </div>
 
                 <div>
