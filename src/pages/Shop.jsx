@@ -21,7 +21,8 @@ function Shop() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [products, setProducts] = useState([]);
   const [search, setSearch] = useState(() => searchParams.get("search") || "");
-  const [category, setCategory] = useState("All");
+  const [category, setCategory] = useState(() => searchParams.get("category") || "All");
+  const [onlyInStock, setOnlyInStock] = useState(false);
   const [sort, setSort] = useState("default");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -30,6 +31,10 @@ function Shop() {
     const querySearch = searchParams.get("search");
     if (querySearch !== null && querySearch !== search) {
       setSearch(querySearch);
+    }
+    const queryCategory = searchParams.get("category");
+    if (queryCategory && queryCategory !== category) {
+      setCategory(queryCategory);
     }
   }, [searchParams]);
 
@@ -74,6 +79,19 @@ function Shop() {
     fetchProducts();
   }, []);
 
+  const categoryCounts = useMemo(() => {
+    const counts = { All: products.length };
+    categories.forEach((cat) => {
+      if (cat !== "All") counts[cat] = 0;
+    });
+    products.forEach((p) => {
+      if (p.category && counts[p.category] !== undefined) {
+        counts[p.category] += 1;
+      }
+    });
+    return counts;
+  }, [products]);
+
   const filteredProducts = useMemo(() => {
     const term = search.trim().toLowerCase();
 
@@ -91,7 +109,9 @@ function Shop() {
       const matchesCategory =
         category === "All" || product.category === category;
 
-      return matchesSearch && matchesCategory;
+      const matchesStock = !onlyInStock || (product.stock > 0);
+
+      return matchesSearch && matchesCategory && matchesStock;
     });
 
     if (sort === "low") {
@@ -108,7 +128,9 @@ function Shop() {
   const clearFilters = () => {
     setSearch("");
     setCategory("All");
+    setOnlyInStock(false);
     setSort("default");
+    setSearchParams({});
   };
 
   return (
@@ -166,11 +188,27 @@ function Shop() {
             type="button"
             key={item}
             className={category === item ? "active" : ""}
-            onClick={() => setCategory(item)}
+            onClick={() => {
+              setCategory(item);
+              setSearchParams((prev) => {
+                const next = new URLSearchParams(prev);
+                if (item === "All") next.delete("category");
+                else next.set("category", item);
+                return next;
+              });
+            }}
           >
-            {item}
+            <span>{item}</span>
+            <span className="cat-count-badge">{categoryCounts[item] ?? 0}</span>
           </button>
         ))}
+        <button
+          type="button"
+          className={`stock-filter-pill ${onlyInStock ? "active" : ""}`}
+          onClick={() => setOnlyInStock(!onlyInStock)}
+        >
+          ✓ In Stock Only
+        </button>
       </div>
 
       <div className="shop-results-header">

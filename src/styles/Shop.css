@@ -97,13 +97,45 @@
 }
 
 .shop-categories button {
-  padding: 11px 23px;
+  padding: 10px 20px;
   border: 1px solid #d9c5e9;
   border-radius: 25px;
   background: white;
   color: #70469b;
   cursor: pointer;
   transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.cat-count-badge {
+  background: #f1e4fb;
+  color: #70469b;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.shop-categories button.active .cat-count-badge,
+.shop-categories button:hover .cat-count-badge {
+  background: rgba(255, 255, 255, 0.25);
+  color: white;
+}
+
+.stock-filter-pill {
+  border-style: dashed !important;
+  color: #553372 !important;
+}
+
+.stock-filter-pill.active {
+  background: #744aa2 !important;
+  color: white !important;
+  border-style: solid !important;
 }
 
 .shop-categories button.active,
