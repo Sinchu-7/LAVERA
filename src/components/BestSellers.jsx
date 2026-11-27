@@ -1,4 +1,5 @@
 
+import { Link } from "react-router-dom";
 import ProductCard from "./ProductCard";
 import "../styles/BestSellers.css";
 
@@ -65,9 +66,9 @@ function BestSellers() {
       </div>
 
       <div className="view-all-container">
-        <button className="view-all-button">
+        <Link to="/shop" className="view-all-button">
           Explore All Products →
-        </button>
+        </Link>
       </div>
     </section>
   );
