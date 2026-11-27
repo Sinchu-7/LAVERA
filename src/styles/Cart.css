@@ -184,12 +184,31 @@
   color: white;
 }
 
-.quantity-controls span {
-  font-size: 14px;
+.quantity-input-box {
+  width: 44px;
+  height: 30px;
+  border: 1px solid #ebdcf5;
+  border-radius: 8px;
+  text-align: center;
   font-weight: 700;
   color: #38234e;
-  min-width: 20px;
-  text-align: center;
+  background: #faf6fd;
+  font-size: 14px;
+  outline: none;
+}
+
+.quantity-input-box::-webkit-inner-spin-button,
+.quantity-input-box::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.stock-limit-note {
+  font-size: 11px;
+  color: #c2410c;
+  display: block;
+  margin-top: 5px;
+  font-weight: 600;
 }
 
 .cart-item-actions {

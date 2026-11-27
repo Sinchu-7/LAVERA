@@ -47,8 +47,28 @@ function Cart() {
         .map((item) => {
           const itemId = item._id || item.id;
           if (itemId === id) {
-            const nextQty = Math.max(0, (item.quantity || 1) + change);
+            const currentQty = item.quantity || 1;
+            const maxStock = typeof item.stock === "number" && item.stock > 0 ? item.stock : 99;
+            const nextQty = Math.max(0, Math.min(maxStock, currentQty + change));
             return { ...item, quantity: nextQty };
+          }
+          return item;
+        })
+        .filter((item) => item.quantity > 0)
+    );
+  };
+
+  const setExactQuantity = (id, newQty) => {
+    const parsed = parseInt(newQty, 10);
+    if (isNaN(parsed) || parsed < 0) return;
+    setCart((current) =>
+      current
+        .map((item) => {
+          const itemId = item._id || item.id;
+          if (itemId === id) {
+            const maxStock = typeof item.stock === "number" && item.stock > 0 ? item.stock : 99;
+            const bounded = Math.max(0, Math.min(maxStock, parsed));
+            return { ...item, quantity: bounded };
           }
           return item;
         })
@@ -174,15 +194,28 @@ function Cart() {
                           <Minus size={14} />
                         </button>
 
-                        <span>{item.quantity || 1}</span>
+                        <input
+                          type="number"
+                          className="quantity-input-box"
+                          value={item.quantity || 1}
+                          min="1"
+                          max={item.stock || 99}
+                          onChange={(e) => setExactQuantity(itemId, e.target.value)}
+                          aria-label="Item quantity"
+                        />
 
                         <button
                           onClick={() => updateQuantity(itemId, 1)}
+                          disabled={typeof item.stock === "number" && item.stock > 0 && (item.quantity || 1) >= item.stock}
                           aria-label="Increase quantity"
                         >
                           <Plus size={14} />
                         </button>
                       </div>
+
+                      {typeof item.stock === "number" && item.stock > 0 && (item.quantity || 1) >= item.stock && (
+                        <small className="stock-limit-note">Max available ({item.stock})</small>
+                      )}
                     </div>
 
                     <div className="cart-item-actions">

@@ -42,11 +42,17 @@ function ProductCard({ product, onSelectProduct }) {
 
   const handleAddToCart = (e) => {
     e.stopPropagation();
+    if (product.stock === 0) return;
     const cart = readStorage("lavera-cart");
 
     const existing = cart.find(
       (item) => (item._id || item.id) === productId
     );
+
+    if (existing && typeof product.stock === "number" && product.stock > 0 && (existing.quantity || 1) >= product.stock) {
+      alert(`Sorry, maximum available stock for this item is ${product.stock}.`);
+      return;
+    }
 
     const updated = existing
       ? cart.map((item) =>
