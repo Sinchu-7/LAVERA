@@ -4,6 +4,7 @@ const router = express.Router();
 const {
   getProducts,
   getProductById,
+  searchProducts,
   getFeaturedProducts,
   getRelatedProducts,
   getCategories,
@@ -13,6 +14,7 @@ const {
 } = require("../controllers/productController");
 
 // Specific routes before param routes
+router.get("/search", searchProducts);
 router.get("/featured", getFeaturedProducts);
 router.get("/categories", getCategories);
 

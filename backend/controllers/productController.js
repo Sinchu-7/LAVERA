@@ -1,12 +1,24 @@
 const Product = require("../models/Product");
 
-// Get all products with optional pagination support
+// Get all products with search and pagination support
 const getProducts = async (req, res) => {
   try {
     const page = Math.max(1, parseInt(req.query.page, 10) || 1);
     const limit = parseInt(req.query.limit, 10) || 0;
+    const searchTerm = (req.query.search || req.query.q || "").trim();
 
     const query = {};
+
+    if (searchTerm) {
+      const escaped = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const regex = new RegExp(escaped, "i");
+      query.$or = [
+        { name: regex },
+        { description: regex },
+        { category: regex },
+      ];
+    }
+
     const totalProducts = await Product.countDocuments(query);
 
     let productQuery = Product.find(query).sort({ createdAt: -1 });
@@ -21,6 +33,7 @@ const getProducts = async (req, res) => {
 
     res.status(200).json({
       success: true,
+      searchTerm: searchTerm || undefined,
       count: products.length,
       totalProducts,
       pagination: {
@@ -34,6 +47,31 @@ const getProducts = async (req, res) => {
       data: products,
       products,
       message: "Products fetched successfully",
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// Dedicated search endpoint with relevance ranking
+const searchProducts = async (req, res) => {
+  try {
+    const q = (req.query.q || req.query.search || "").trim();
+    if (!q) {
+      return res.status(200).json({ success: true, count: 0, products: [], data: [] });
+    }
+    const escaped = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const regex = new RegExp(escaped, "i");
+    const products = await Product.find({
+      $or: [{ name: regex }, { description: regex }, { category: regex }],
+    }).sort({ rating: -1, createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      query: q,
+      count: products.length,
+      data: products,
+      products,
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -192,6 +230,7 @@ const deleteProduct = async (req, res) => {
 module.exports = {
   getProducts,
   getProductById,
+  searchProducts,
   getFeaturedProducts,
   getRelatedProducts,
   getCategories,
