@@ -33,10 +33,21 @@ function Admin() {
   const [products, setProducts] = useState([]);
   const [form, setForm] = useState(emptyProduct);
   const [editingId, setEditingId] = useState(null);
+  const [editingName, setEditingName] = useState("");
   const [message, setMessage] = useState({ text: "", type: "" });
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState("products");
   const [imgLoadError, setImgLoadError] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape" && editingId) {
+        cancelEdit();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [editingId]);
 
   const autoFillSample = () => {
     const samples = [
@@ -152,7 +163,8 @@ function Admin() {
   };
 
   const handleEdit = (product) => {
-    setEditingId(product._id);
+    setEditingId(product._id || product.id);
+    setEditingName(product.name || "Product");
     setForm({
       name: product.name || "",
       description: product.description || "",
@@ -167,6 +179,13 @@ function Admin() {
     });
     setActiveTab("add");
     window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditingName("");
+    setForm(emptyProduct);
+    setActiveTab("products");
   };
 
   const handleDelete = async (id) => {
@@ -190,12 +209,6 @@ function Admin() {
     } catch (error) {
       showToast(error.message, "error");
     }
-  };
-
-  const cancelEdit = () => {
-    setEditingId(null);
-    setForm(emptyProduct);
-    setActiveTab("products");
   };
 
   return (
@@ -346,8 +359,23 @@ function Admin() {
         {activeTab === "add" && (
           <div className="admin-card" style={{ maxWidth: 850, margin: "0 auto" }}>
             <div className="admin-card-header">
-              <h2>{editingId ? "Edit Product Details" : "Create New Beauty Product"}</h2>
-              {!editingId && (
+              <div>
+                <h2>{editingId ? `Editing: ${editingName || "Product"}` : "Create New Beauty Product"}</h2>
+                {editingId && (
+                  <span style={{ fontSize: 12, color: "#8c7b99" }}>
+                    ID: {editingId} · Press Esc to cancel
+                  </span>
+                )}
+              </div>
+              {editingId ? (
+                <button
+                  type="button"
+                  className="action-delete-btn"
+                  onClick={cancelEdit}
+                >
+                  Cancel Edit (Esc)
+                </button>
+              ) : (
                 <button
                   type="button"
                   className="action-edit-btn"
