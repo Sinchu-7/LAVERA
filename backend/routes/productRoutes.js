@@ -8,6 +8,8 @@ const {
   getFeaturedProducts,
   getRelatedProducts,
   getCategories,
+  validateStock,
+  decrementStock,
   createProduct,
   updateProduct,
   deleteProduct,
@@ -17,11 +19,13 @@ const {
 router.get("/search", searchProducts);
 router.get("/featured", getFeaturedProducts);
 router.get("/categories", getCategories);
+router.post("/validate-stock", validateStock);
 
-// Standard CRUD routes
+// Standard CRUD and stock routes
 router.get("/", getProducts);
 router.get("/:id", getProductById);
 router.get("/:id/related", getRelatedProducts);
+router.post("/:id/decrement-stock", decrementStock);
 router.post("/", createProduct);
 router.put("/:id", updateProduct);
 router.delete("/:id", deleteProduct);

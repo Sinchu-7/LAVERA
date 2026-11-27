@@ -221,9 +221,16 @@ const getCategories = async (req, res) => {
   }
 };
 
-// Create product
+// Create product with stock validation
 const createProduct = async (req, res) => {
   try {
+    if (req.body.stock !== undefined && Number(req.body.stock) < 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Initial stock quantity cannot be negative",
+      });
+    }
+
     const product = await Product.create(req.body);
     res.status(201).json({
       success: true,
@@ -236,9 +243,16 @@ const createProduct = async (req, res) => {
   }
 };
 
-// Update product
+// Update product with stock validation
 const updateProduct = async (req, res) => {
   try {
+    if (req.body.stock !== undefined && Number(req.body.stock) < 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Stock quantity cannot be negative",
+      });
+    }
+
     const product = await Product.findByIdAndUpdate(
       req.params.id,
       req.body,
@@ -256,6 +270,84 @@ const updateProduct = async (req, res) => {
       success: true,
       message: "Product updated successfully",
       data: product,
+      product,
+    });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+// Validate stock availability for batch items
+const validateStock = async (req, res) => {
+  try {
+    const { items } = req.body;
+    if (!Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Please provide an array of items to validate",
+      });
+    }
+
+    const issues = [];
+    for (const item of items) {
+      const product = await Product.findById(item.id || item._id);
+      if (!product) {
+        issues.push({ id: item.id || item._id, message: "Product not found" });
+      } else if (product.stock < (item.quantity || 1)) {
+        issues.push({
+          id: product._id,
+          name: product.name,
+          requested: item.quantity || 1,
+          available: product.stock,
+          message: product.stock === 0 ? "Out of stock" : `Only ${product.stock} units available`,
+        });
+      }
+    }
+
+    if (issues.length > 0) {
+      return res.status(200).json({
+        success: false,
+        valid: false,
+        message: "Some items in your cart exceed available stock",
+        issues,
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      valid: true,
+      message: "All requested items are available in stock",
+    });
+  } catch (error) {
+    res.status(400).json({ success: false, message: error.message });
+  }
+};
+
+// Atomically decrement stock when order is confirmed
+const decrementStock = async (req, res) => {
+  try {
+    const quantity = parseInt(req.body.quantity, 10) || 1;
+    if (quantity <= 0) {
+      return res.status(400).json({ success: false, message: "Invalid decrement quantity" });
+    }
+
+    const product = await Product.findOneAndUpdate(
+      { _id: req.params.id, stock: { $gte: quantity } },
+      { $inc: { stock: -quantity } },
+      { new: true }
+    );
+
+    if (!product) {
+      return res.status(400).json({
+        success: false,
+        message: "Insufficient stock or product not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Stock decremented successfully",
+      remainingStock: product.stock,
       product,
     });
   } catch (error) {
@@ -292,6 +384,8 @@ module.exports = {
   getFeaturedProducts,
   getRelatedProducts,
   getCategories,
+  validateStock,
+  decrementStock,
   createProduct,
   updateProduct,
   deleteProduct,
