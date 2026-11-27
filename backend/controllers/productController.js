@@ -1,14 +1,49 @@
 const Product = require("../models/Product");
 
-// Get all products with search and pagination support
+// Get all products with search, filtering, sorting, and pagination support
 const getProducts = async (req, res) => {
   try {
     const page = Math.max(1, parseInt(req.query.page, 10) || 1);
     const limit = parseInt(req.query.limit, 10) || 0;
     const searchTerm = (req.query.search || req.query.q || "").trim();
+    const category = (req.query.category || "").trim();
+    const minPrice = parseFloat(req.query.minPrice);
+    const maxPrice = parseFloat(req.query.maxPrice);
+    const inStock = req.query.inStock === "true" || req.query.inStock === "1";
+    const featured = req.query.featured === "true" || req.query.featured === "1";
+    const minRating = parseFloat(req.query.minRating);
+    const sort = req.query.sort || "default";
 
     const query = {};
 
+    // Category filter
+    if (category && category.toLowerCase() !== "all") {
+      query.category = { $regex: new RegExp(`^${category}$`, "i") };
+    }
+
+    // Price range filter
+    if (!isNaN(minPrice) || !isNaN(maxPrice)) {
+      query.price = {};
+      if (!isNaN(minPrice)) query.price.$gte = minPrice;
+      if (!isNaN(maxPrice)) query.price.$lte = maxPrice;
+    }
+
+    // Stock availability filter
+    if (inStock) {
+      query.stock = { $gt: 0 };
+    }
+
+    // Featured filter
+    if (featured) {
+      query.featured = true;
+    }
+
+    // Rating filter
+    if (!isNaN(minRating)) {
+      query.rating = { $gte: minRating };
+    }
+
+    // Keyword search filter
     if (searchTerm) {
       const escaped = searchTerm.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       const regex = new RegExp(escaped, "i");
@@ -19,9 +54,23 @@ const getProducts = async (req, res) => {
       ];
     }
 
+    // Dynamic sort mapping
+    let sortOptions = { createdAt: -1 };
+    if (sort === "low" || sort === "price_asc") {
+      sortOptions = { price: 1 };
+    } else if (sort === "high" || sort === "price_desc") {
+      sortOptions = { price: -1 };
+    } else if (sort === "rating") {
+      sortOptions = { rating: -1, reviews: -1 };
+    } else if (sort === "newest") {
+      sortOptions = { createdAt: -1 };
+    } else if (sort === "name-asc" || sort === "name_asc") {
+      sortOptions = { name: 1 };
+    }
+
     const totalProducts = await Product.countDocuments(query);
 
-    let productQuery = Product.find(query).sort({ createdAt: -1 });
+    let productQuery = Product.find(query).sort(sortOptions);
 
     if (limit > 0) {
       const skip = (page - 1) * limit;
@@ -33,7 +82,16 @@ const getProducts = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      searchTerm: searchTerm || undefined,
+      filters: {
+        category: category || "All",
+        searchTerm: searchTerm || undefined,
+        minPrice: !isNaN(minPrice) ? minPrice : undefined,
+        maxPrice: !isNaN(maxPrice) ? maxPrice : undefined,
+        inStock,
+        featured,
+        minRating: !isNaN(minRating) ? minRating : undefined,
+        sort,
+      },
       count: products.length,
       totalProducts,
       pagination: {
